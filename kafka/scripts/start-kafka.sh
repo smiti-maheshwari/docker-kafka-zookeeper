@@ -76,5 +76,5 @@ if [ ! -z "$AUTO_CREATE_TOPICS" ]; then
     echo "\nauto.create.topics.enable=$AUTO_CREATE_TOPICS" >> $KAFKA_HOME/config/server.properties
 fi
 
-# Run Kafka
-$KAFKA_HOME/bin/kafka-server-start.sh $KAFKA_HOME/config/server.properties
+# Run Zookeeper & Kafka
+$ZOOKEEPER_HOME/bin/zkServer.sh start-foreground & $KAFKA_HOME/bin/kafka-server-start.sh $KAFKA_HOME/config/server.properties
