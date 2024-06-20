@@ -1,6 +1,14 @@
 # Kafka and Zookeeper
 
-FROM java:openjdk-8-jre
+FROM adoptopenjdk/openjdk11:latest
+#RUN mkdir /opt/app
+#COPY japp.jar /opt/app
+#CMD ["java", "-jar", "/opt/app/japp.jar"]
+
+RUN  apt-get update \
+  && apt-get install -y wget \
+  && apt-get install -y supervisor \
+  && rm -rf /var/lib/apt/lists/*
 
 ENV DEBIAN_FRONTEND noninteractive
 ENV ZOOKEEPER_VERSION 3.4.13
@@ -9,7 +17,7 @@ ENV ZOOKEEPER_HOME /opt/zookeeper-"$ZOOKEEPER_VERSION"
 RUN wget -q http://archive.apache.org/dist/zookeeper/zookeeper-"$ZOOKEEPER_VERSION"/zookeeper-"$ZOOKEEPER_VERSION".tar.gz -O /tmp/zookeeper-"$ZOOKEEPER_VERSION".tgz
 RUN ls -l /tmp/zookeeper-"$ZOOKEEPER_VERSION".tgz
 RUN tar xfz /tmp/zookeeper-"$ZOOKEEPER_VERSION".tgz -C /opt && rm /tmp/zookeeper-"$ZOOKEEPER_VERSION".tgz
-ADD assets/conf/zoo.cfg $ZOOKEEPER_HOME/conf
+ADD config/zoo.cfg $ZOOKEEPER_HOME/conf
 
 ENV SCALA_VERSION 2.13
 ENV KAFKA_VERSION 2.7.0
@@ -19,11 +27,11 @@ ENV KAFKA_DOWNLOAD_URL https://archive.apache.org/dist/kafka/"$KAFKA_VERSION"/ka
 RUN wget -q $KAFKA_DOWNLOAD_URL -O /tmp/kafka_"$SCALA_VERSION"-"$KAFKA_VERSION".tgz
 RUN tar xfz /tmp/kafka_"$SCALA_VERSION"-"$KAFKA_VERSION".tgz -C /opt && rm /tmp/kafka_"$SCALA_VERSION"-"$KAFKA_VERSION".tgz
 
-ADD assets/scripts/start-kafka.sh /usr/bin/start-kafka.sh
-ADD assets/scripts/start-zookeeper.sh /usr/bin/start-zookeeper.sh
+ADD scripts/start-kafka.sh /usr/bin/start-kafka.sh
+ADD scripts/start-zookeeper.sh /usr/bin/start-zookeeper.sh
 
 # Supervisor config
-ADD assets/supervisor/kafka.ini assets/supervisor/zookeeper.ini /etc/supervisor.d/
+ADD supervisor/kafka.conf supervisor/zookeeper.conf /etc/supervisor/conf.d/
 
 # 2181 is zookeeper, 9092 is kafka
 EXPOSE 2181 9092
